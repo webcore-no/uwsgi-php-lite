@@ -11,11 +11,6 @@ struct uwsgi_php {
 	struct uwsgi_string_list *index;
 	struct uwsgi_string_list *set;
 	struct uwsgi_string_list *append_config;
-#ifdef UWSGI_PCRE
-	struct uwsgi_regexp_list *app_bypass;
-#endif
-	struct uwsgi_string_list *vars;
-	struct uwsgi_string_list *constants;
 	char *docroot;
 	char *app;
 	char *app_qs;
@@ -109,8 +104,6 @@ struct uwsgi_option uwsgi_php_options[] = {
 #ifdef UWSGI_PCRE
 	{"php-app-bypass", required_argument, 0, "if the regexp matches the uri the --php-app is bypassed", uwsgi_opt_add_regexp_list, &uphp.app_bypass, 0},
 #endif
-	{"php-var", required_argument, 0, "add/overwrite a CGI variable at each request", uwsgi_opt_add_string_list, &uphp.vars, 0},
-	{"php-constant", required_argument, 0, "define a php constant for each request", uwsgi_opt_add_string_list, &uphp.constants, 0},
 	{"php-dump-config", no_argument, 0, "dump php config (if modified via --php-set or append options)", uwsgi_opt_true, &uphp.dump_config, 0},
 	{"php-sapi-name", required_argument, 0, "hack the sapi name (required for enabling zend opcode cache)", uwsgi_opt_set_str, &uphp.sapi_name, 0},
 	{"early-php", no_argument, 0, "initialize an early perl interpreter shared by all loaders", uwsgi_opt_early_php, NULL, UWSGI_OPT_IMMEDIATE},
@@ -250,15 +243,6 @@ static void sapi_uwsgi_register_variables(zval * track_vars_array TSRMLS_DC) {
 	}
 
 	php_register_variable_safe("PHP_SELF", wsgi_req->script_name, wsgi_req->script_name_len, track_vars_array TSRMLS_CC);
-
-	struct uwsgi_string_list *usl = uphp.vars;
-	while (usl) {
-		char *equal = strchr(usl->value, '=');
-		if (equal) {
-			php_register_variable_safe(estrndup(usl->value, equal - usl->value), equal + 1, strlen(equal + 1), track_vars_array TSRMLS_CC);
-		}
-		usl = usl->next;
-	}
 }
 
 static sapi_module_struct uwsgi_sapi_module;
@@ -371,7 +355,6 @@ void uwsgi_php_set(char *opt) {
 
 static int php_uwsgi_startup(sapi_module_struct * sapi_module) {
 
-	uwsgi_log("\nPHP MODULE INIT %d\n\n",php_get_module_initialized());
 	if (php_module_startup(&uwsgi_sapi_module, &php_cache_module_entry, 1) == FAILURE) {
 		return FAILURE;
 	}
@@ -427,7 +410,6 @@ static int uwsgi_php_init(void) {
 	struct uwsgi_string_list *pset = uphp.set;
 	struct uwsgi_string_list *append_config = uphp.append_config;
 
-	uwsgi_log("\nSAPI INITILIZED %d\n\n",uphp.sapi_initialized);
 	if (!uphp.sapi_initialized) {
 #ifdef ZTS
 		tsrm_startup(1, 1, 0, NULL);
