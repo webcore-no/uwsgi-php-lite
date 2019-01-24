@@ -1,6 +1,6 @@
 import os
 
-NAME = 'php'
+
 
 ld_run_path = None
 PHPPATH = 'php-config'
@@ -12,19 +12,24 @@ if phpdir:
 
 PHPPATH = os.environ.get('UWSGICONFIG_PHPPATH', PHPPATH)
 
-php_version = os.popen(PHPPATH + ' --version').read().rstrip().split('.')[0]
+verinfo = os.popen(PHPPATH + ' --version').read().rstrip().split('.')
+major = verinfo[0]
+minor = verinfo[1]
+patch = verinfo[2]
 
-CFLAGS = [os.popen(PHPPATH + ' --includes').read().rstrip(), '-Wno-sign-compare']
+NAME = 'php_lite_'+major+'_'+minor+'_'+patch
+
+CFLAGS = [os.popen(PHPPATH + ' --includes').read().rstrip(), '-Wno-sign-compare','-DPHPNAME="'+NAME+'_plugin"']
 LDFLAGS = os.popen(PHPPATH + ' --ldflags').read().rstrip().split()
 
 if ld_run_path:
     LDFLAGS.append('-L%s' % ld_run_path)
     os.environ['LD_RUN_PATH'] = ld_run_path
 
-LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-lphp' + php_version]
+LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-lphp' + major]
 
 phplibdir = os.environ.get('UWSGICONFIG_PHPLIBDIR')
 if phplibdir:
     LIBS.append('-flto=thin -Wl,-rpath,%s' % phplibdir)
 
-GCC_LIST = ['php_plugin', 'session', 'php_cache_module']
+GCC_LIST = [ 'php_lite_plugin','session', 'php_cache_module']
