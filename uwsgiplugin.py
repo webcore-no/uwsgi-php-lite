@@ -17,7 +17,7 @@ major = verinfo[0]
 minor = verinfo[1]
 patch = verinfo[2]
 
-NAME = 'php_lite_'+major+'_'+minor+'_'+patch
+NAME = 'php_lite'
 
 CFLAGS = [os.popen(PHPPATH + ' --includes').read().rstrip(), '-Wno-sign-compare','-DPHPNAME="'+NAME+'_plugin"']
 LDFLAGS = os.popen(PHPPATH + ' --ldflags').read().rstrip().split()

@@ -580,7 +580,7 @@ void uwsgi_php_after_request(struct wsgi_request *wsgi_req) {
 	log_request(wsgi_req);
 }
 
-SAPI_API struct uwsgi_plugin PHPNAME = {
+SAPI_API struct uwsgi_plugin php_lite_plugin = {
 	.name = "php_lite",
 	.modifier1 = 14,
 	.init = uwsgi_php_init,
