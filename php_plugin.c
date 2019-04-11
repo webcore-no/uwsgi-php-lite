@@ -44,6 +44,7 @@ void uwsgi_preload_file(char *name,char *search, char *replace) {
 				fh.filename = new_name;
 				fh.handle.fd = fd;
 				uwsgi_log("Adding %s to opcache as %s\n",name,new_name);
+
 				if(php_request_startup(TSRMLS_C) == FAILURE) {
 					uwsgi_error("php_request_startup()");
 					return;
