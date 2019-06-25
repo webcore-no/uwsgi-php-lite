@@ -55,7 +55,7 @@ void uwsgi_preload_file(char *name,char *search, char *replace) {
 				php_request_shutdown(NULL);
 				close(fd);
 				free(new_name);
-			} 
+			}
 			else {
 				uwsgi_error("open()");
 			}
@@ -382,7 +382,7 @@ static sapi_module_struct uwsgi_sapi_module = {
 	php_uwsgi_startup,
 	php_module_shutdown_wrapper,
 
-	sapi_uwsgi_activate,			/* activate */			
+	sapi_uwsgi_activate,			/* activate */
 	NULL,			/* deactivate */
 
 	sapi_uwsgi_ub_write,
@@ -519,7 +519,7 @@ appready:
 		wsgi_req->path_info = "";
 		wsgi_req->path_info_len = 0;
 		wsgi_req->script_name = "";
-		wsgi_req->script_name_len = 0;	
+		wsgi_req->script_name_len = 0;
 	}
 
 	wsgi_req->file = real_filename;
