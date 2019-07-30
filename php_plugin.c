@@ -450,7 +450,7 @@ static int uwsgi_php_init(void) {
 		uwsgi_sapi_module.name = uphp.sapi_name;
 	}
 
-	uwsgi_sapi_module.startup(&uwsgi_sapi_module);	
+	uwsgi_sapi_module.startup(&uwsgi_sapi_module);
 
 	uwsgi_log("PHP %s initialized\n", PHP_VERSION);
 	return 0;

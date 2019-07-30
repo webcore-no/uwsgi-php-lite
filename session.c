@@ -31,7 +31,7 @@ PS_READ_FUNC(uwsgi) {
 	*vallen = valsize;
 #endif
 	return SUCCESS;
-	
+
 }
 
 PS_WRITE_FUNC(uwsgi) {
@@ -43,7 +43,7 @@ PS_WRITE_FUNC(uwsgi) {
 	if (vallen == 0) return SUCCESS;
 	if (!uwsgi_cache_magic_set((char *)key, strlen(key), (char *)val, vallen, 0, UWSGI_CACHE_FLAG_UPDATE, cache)) {
 #endif
-		return SUCCESS;	
+		return SUCCESS;
 	}
 	return FAILURE;
 }
