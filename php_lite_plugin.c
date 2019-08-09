@@ -368,7 +368,7 @@ static void sapi_uwsgi_log_message(char *message, int syslog_type_int) {
 #else
 static void sapi_uwsgi_log_message(char *message TSRMLS_DC) {
 #endif
-	uwsgi_log("%s\n", message);
+	uwsgi_log("PHP:%s\n", message);
 }
 int sapi_uwsgi_activate() {
 
@@ -581,9 +581,8 @@ void uwsgi_php_after_request(struct wsgi_request *wsgi_req) {
 	log_request(wsgi_req);
 }
 
-
-SAPI_API struct uwsgi_plugin php_plugin = {
-	.name = "php",
+SAPI_API struct uwsgi_plugin php_lite_plugin = {
+	.name = "php_lite",
 	.modifier1 = 14,
 	.init = uwsgi_php_init,
 	.request = uwsgi_php_request,
