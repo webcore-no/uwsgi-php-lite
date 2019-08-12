@@ -368,7 +368,7 @@ static void sapi_uwsgi_log_message(char *message, int syslog_type_int) {
 #else
 static void sapi_uwsgi_log_message(char *message TSRMLS_DC) {
 #endif
-	uwsgi_log("PHP:%s\n", message);
+	uwsgi_log(" PHP %s\n", message);
 }
 int sapi_uwsgi_activate() {
 
