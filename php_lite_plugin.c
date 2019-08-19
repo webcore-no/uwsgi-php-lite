@@ -368,7 +368,7 @@ static void sapi_uwsgi_log_message(char *message, int syslog_type_int) {
 #else
 static void sapi_uwsgi_log_message(char *message TSRMLS_DC) {
 #endif
-	_uwsgi_report_prefix("PHP",zend_get_executed_filename(),zend_get_executed_lineno(),INFO,"%s\n",message);
+	_uwsgi_report("PHP",zend_get_executed_filename(),zend_get_executed_lineno(),INFO,"%s\n",message);
 }
 int sapi_uwsgi_activate() {
 
