@@ -133,18 +133,13 @@ static int sapi_uwsgi_ub_write(const char *str, uint str_length TSRMLS_DC)
 static int sapi_uwsgi_send_headers(sapi_headers_struct * sapi_headers TSRMLS_DC) {
 	sapi_header_struct *h;
 	zend_llist_position pos;
-
 	if (SG(request_info).no_headers == 1) {
 		return SAPI_HEADER_SENT_SUCCESSFULLY;
 	}
-
 	struct wsgi_request *wsgi_req = (struct wsgi_request *) SG(server_context);
 
 	char *accept_key = "UWSGI_ACCEPT_TIMESTAMP";
 	char timebuf[256];
-	if(snprintf(timebuf,256,"%d",wsgi_req->start_of_request/1000)) {
-		uwsgi_response_add_header(wsgi_req,accept_key,strlen(accept_key),timebuf,strlen(timebuf));
-	}
 	if (!SG(sapi_headers).http_status_line) {
 		char status[4];
 		int hrc = SG(sapi_headers).http_response_code;
@@ -159,7 +154,10 @@ static int sapi_uwsgi_send_headers(sapi_headers_struct * sapi_headers TSRMLS_DC)
 		if (uwsgi_response_prepare_headers(wsgi_req, sl + 9, strlen(sl + 9)))
 			return SAPI_HEADER_SEND_FAILED;
 	}
-
+	if(snprintf(timebuf,256,"%ld",wsgi_req->start_of_request/1000)) {
+		if(uwsgi_response_add_header(wsgi_req,accept_key,strlen(accept_key),timebuf,strlen(timebuf)))
+			return SAPI_HEADER_SEND_FAILED;
+	}
 	h = zend_llist_get_first_ex(&sapi_headers->headers, &pos);
 	while (h) {
 		uwsgi_response_add_header(wsgi_req, NULL, 0, h->header, h->header_len);
