@@ -14,6 +14,7 @@ struct uwsgi_php {
 	char *docroot;
 	char *app;
 	char *app_qs;
+	char *app_bypass;
 	size_t ini_size;
 	int dump_config;
 	char *server_software;
@@ -139,6 +140,11 @@ static int sapi_uwsgi_send_headers(sapi_headers_struct * sapi_headers TSRMLS_DC)
 
 	struct wsgi_request *wsgi_req = (struct wsgi_request *) SG(server_context);
 
+	char *accept_key = "UWSGI_ACCEPT_TIMESTAMP";
+	char timebuf[256];
+	if(snprintf(timebuf,256,"%d",wsgi_req->start_of_request/1000)) {
+		uwsgi_response_add_header(wsgi_req,accept_key,strlen(accept_key),timebuf,strlen(timebuf));
+	}
 	if (!SG(sapi_headers).http_status_line) {
 		char status[4];
 		int hrc = SG(sapi_headers).http_response_code;
