@@ -32,20 +32,18 @@ void uwsgi_opt_early_php(char *opt, char *value, void *foobar) {
 	uwsgi_php_init();
 }
 
-void uwsgi_preload_file(char *name,char *search, char *replace) {
+void uwsgi_preload_file(char *name, char *search, char *replace) {
 		if(strcmp(name+strlen(name)-4,".php") == 0) {
-		int fd = open(name,0);
-		if (fd) {
+		FILE *fp = fopen(name, "rb");
+		if (fp) {
 				char *split = name + strlen(search);
-				char *new_name = uwsgi_concat2(replace,split);
+				char *new_name = uwsgi_concat2(replace, split);
 				zend_file_handle fh;
-				//fh.type = ZEND_HANDLE_FD;
 				fh.type = ZEND_HANDLE_FP;
-				fh.handle.fp = fdopen(fd, "rb");
+				fh.handle.fp = fp;
 				fh.opened_path = NULL;
 				fh.free_filename = 0;
 				fh.filename = new_name;
-				//fh.handle.fd = fd;
 				uwsgi_log("Adding %s to opcache as %s\n",name,new_name);
 
 				if(php_request_startup(TSRMLS_C) == FAILURE) {
@@ -56,7 +54,6 @@ void uwsgi_preload_file(char *name,char *search, char *replace) {
 				SG(request_info).no_headers = 1;
 				php_lint_script(&fh);
 				php_request_shutdown(NULL);
-				close(fd);
 				free(new_name);
 			}
 			else {
@@ -565,10 +562,9 @@ secure3:
 
 	SG(request_info).path_translated = wsgi_req->file;
 
+	memset(&file_handle, 0, sizeof(zend_file_handle));
 	file_handle.type = ZEND_HANDLE_FILENAME;
 	file_handle.filename = real_filename;
-	file_handle.free_filename = 0;
-	file_handle.opened_path = NULL;
 
 	if (php_request_startup(TSRMLS_C) == FAILURE) {
 		uwsgi_500(wsgi_req);
