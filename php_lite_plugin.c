@@ -39,11 +39,7 @@ void uwsgi_preload_file(char *name, char *search, char *replace) {
 				char *split = name + strlen(search);
 				char *new_name = uwsgi_concat2(replace, split);
 				zend_file_handle fh;
-				fh.type = ZEND_HANDLE_FP;
-				fh.handle.fp = fp;
-				fh.opened_path = NULL;
-				fh.free_filename = 0;
-				fh.filename = new_name;
+				zend_stream_init_fp(&fh, fp, new_name);
 				uwsgi_log("Adding %s to opcache as %s\n",name,new_name);
 
 				if(php_request_startup(TSRMLS_C) == FAILURE) {
