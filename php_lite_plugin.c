@@ -247,7 +247,11 @@ static void sapi_uwsgi_register_variables(zval * track_vars_array TSRMLS_DC) {
 
 static sapi_module_struct uwsgi_sapi_module;
 
+#if (PHP_MAJOR_VERSION < 8)
 static void uwsgi_php_disable(char *value, int (*zend_disable) (char *, size_t)) {	/* {{{ */
+#else
+static void uwsgi_php_disable(char *value, zend_result (*zend_disable) (const char *, size_t)) {	/* {{{ */
+#endif
 	char *s = 0, *e = value;
 
 	while (*e) {
@@ -294,15 +298,18 @@ static int uwsgi_php_zend_alter_master_ini(char *key, char *val, int mode, int s
 
 	return SUCCESS;
 }
-
 int uwsgi_php_apply_defines_ex(char *key, char *val, int *mode) {
 	if (uwsgi_php_zend_alter_master_ini(key, val, ZEND_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE) == FAILURE)
 		return -1;
 
 	if (!strcmp(key, "disable_functions") && *val) {
+#if (PHP_MAJOR_VERSION < 8)
 		char *v = strdup(val);
 		PG(disable_functions) = v;
 		uwsgi_php_disable(v, zend_disable_function);
+#else
+		zend_disable_functions(val);
+#endif
 	}
 	else if (!strcmp(key, "disable_classes") && *val) {
 		char *v = strdup(val);
@@ -364,10 +371,12 @@ static int php_uwsgi_startup(sapi_module_struct * sapi_module) {
 }
 #if ((PHP_MAJOR_VERSION >= 7) && (PHP_MINOR_VERSION >= 1))
 static void sapi_uwsgi_log_message(char *message, int syslog_type_int) {
+#elif PHP_MAJOR_VERSION >= 8
+static void sapi_uwsgi_log_message(const char *message, int syslog_type_int) {
 #else
 static void sapi_uwsgi_log_message(char *message TSRMLS_DC) {
 #endif
-	_uwsgi_report("PHP",zend_get_executed_filename(),zend_get_executed_lineno(),INFO,"%s\n",message);
+	uwsgi_log("PHP %s:%d %s\n", zend_get_executed_filename(), zend_get_executed_lineno(), message);
 }
 int sapi_uwsgi_activate() {
 

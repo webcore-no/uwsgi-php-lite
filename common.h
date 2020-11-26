@@ -23,4 +23,19 @@
 
 #include <uwsgi.h>
 
+#if ZEND_MODULE_API_NO >= 20190128
+#ifndef TSRMLS_CC
+#define TSRMLS_CC
+#endif
+#ifndef TSRMLS_C
+#define TSRMLS_C
+#endif
+#ifndef TSRMLS_DC
+#define TSRMLS_DC
+#endif
+#ifndef TSRMLS_D
+#define TSRMLS_D
+#endif
+#endif
+
 extern struct uwsgi_server uwsgi;

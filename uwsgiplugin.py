@@ -26,7 +26,11 @@ if ld_run_path:
     LDFLAGS.append('-L%s' % ld_run_path)
     os.environ['LD_RUN_PATH'] = ld_run_path
 
-LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-lphp' + major]
+libname = "php"
+if 8 > int(major):
+    libname = libname + major
+
+LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-l' + libname]
 
 phplibdir = os.environ.get('UWSGICONFIG_PHPLIBDIR')
 if phplibdir:
