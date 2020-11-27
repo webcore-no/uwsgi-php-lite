@@ -1,5 +1,8 @@
 #include "php_cache_module.h"
 
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_version, 0)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_version) {
 #ifdef UWSGI_PHP7
 	RETURN_STRING(VEREDIS_QUE_VERSION);
@@ -8,6 +11,9 @@ PHP_FUNCTION(uwsgi_version) {
 #endif
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_setprocname, 0)
+ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_setprocname) {
 
 	char *name;
@@ -22,10 +28,14 @@ PHP_FUNCTION(uwsgi_setprocname) {
 	RETURN_NULL();
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_worker_id, 0)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_worker_id) {
 	RETURN_LONG(uwsgi.mywid);
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_masterpid, 0)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_masterpid) {
 	if (uwsgi.master_process) {
 		RETURN_LONG(uwsgi.workers[0].pid);
@@ -33,6 +43,9 @@ PHP_FUNCTION(uwsgi_masterpid) {
 	RETURN_LONG(0);
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_signal, 0)
+ZEND_ARG_INFO(0, long_signum)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_signal) {
 
 	long long_signum;
@@ -47,6 +60,10 @@ PHP_FUNCTION(uwsgi_signal) {
 
 	RETURN_NULL();
 }
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_rpc, 0)
+ZEND_ARG_VARIADIC_INFO(0, varargs)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_rpc) {
 	int num_args = 0;
 	int i;
@@ -110,6 +127,10 @@ clear:
 
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_get, 0)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_get) {
 
 	char *key = NULL;
@@ -137,6 +158,12 @@ PHP_FUNCTION(uwsgi_cache_get) {
 	RETURN_NULL();
 }
 
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_set, 0)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, value)
+ZEND_ARG_INFO(0, expires)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_set) {
 	char *key = NULL;
 	size_t keylen;
@@ -162,6 +189,14 @@ PHP_FUNCTION(uwsgi_cache_set) {
 	RETURN_NULL();
 
 }
+
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_update, 0)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, value)
+ZEND_ARG_INFO(0, expires)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_update) {
 	char *key = NULL;
 	size_t keylen;
@@ -187,6 +222,11 @@ PHP_FUNCTION(uwsgi_cache_update) {
 	RETURN_NULL();
 
 }
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_del, 0)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_del) {
 
 	char *key = NULL;
@@ -205,6 +245,10 @@ PHP_FUNCTION(uwsgi_cache_del) {
 
 	RETURN_NULL();
 }
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_clear, 0)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_clear) {
 
 	char *cache = NULL;
@@ -220,6 +264,11 @@ PHP_FUNCTION(uwsgi_cache_clear) {
 
 	RETURN_NULL();
 }
+
+ZEND_BEGIN_ARG_INFO(arginfo_uwsgi_cache_exists, 0)
+ZEND_ARG_INFO(0, key)
+ZEND_ARG_INFO(0, cache)
+ZEND_END_ARG_INFO()
 PHP_FUNCTION(uwsgi_cache_exists) {
 
 	char *key = NULL;
@@ -240,19 +289,20 @@ PHP_FUNCTION(uwsgi_cache_exists) {
 }
 
 zend_function_entry uwsgi_php_functions[] = {
-	UWSGI_FE(uwsgi_version)
-	UWSGI_FE(uwsgi_setprocname)
-	UWSGI_FE(uwsgi_worker_id)
-	UWSGI_FE(uwsgi_masterpid)
-	UWSGI_FE(uwsgi_signal)
-	UWSGI_FE(uwsgi_rpc)
+	PHP_FE(uwsgi_version, arginfo_uwsgi_version)
+	PHP_FE(uwsgi_setprocname, arginfo_uwsgi_setprocname)
+	PHP_FE(uwsgi_worker_id, arginfo_uwsgi_worker_id)
+	PHP_FE(uwsgi_masterpid, arginfo_uwsgi_masterpid)
+	PHP_FE(uwsgi_signal, arginfo_uwsgi_signal)
+	PHP_FE(uwsgi_rpc, arginfo_uwsgi_rpc)
 
-	UWSGI_FE(uwsgi_cache_get)
-	UWSGI_FE(uwsgi_cache_set)
-	UWSGI_FE(uwsgi_cache_update)
-	UWSGI_FE(uwsgi_cache_del)
-	UWSGI_FE(uwsgi_cache_clear)
-	UWSGI_FE(uwsgi_cache_exists) {NULL, NULL, NULL},
+	PHP_FE(uwsgi_cache_get, arginfo_uwsgi_cache_get)
+	PHP_FE(uwsgi_cache_set, arginfo_uwsgi_cache_set)
+	PHP_FE(uwsgi_cache_update, arginfo_uwsgi_cache_update)
+	PHP_FE(uwsgi_cache_del, arginfo_uwsgi_cache_del)
+	PHP_FE(uwsgi_cache_clear, arginfo_uwsgi_cache_clear)
+	PHP_FE(uwsgi_cache_exists, arginfo_uwsgi_cache_exists)
+	{NULL, NULL, NULL},
 };
 extern ps_module ps_mod_uwsgi;
 PHP_MINIT_FUNCTION(uwsgi_php_minit) {
