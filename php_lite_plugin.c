@@ -208,6 +208,7 @@ static char *sapi_uwsgi_read_cookies(TSRMLS_D) {
 static void sapi_uwsgi_register_variables(zval * track_vars_array TSRMLS_DC) {
 	int i;
 	struct wsgi_request *wsgi_req = (struct wsgi_request *) SG(server_context);
+	if(!wsgi_req) return;
 	php_import_environment_variables(track_vars_array TSRMLS_CC);
 
 	if (uphp.server_software) {
@@ -466,6 +467,9 @@ static int uwsgi_php_init(void) {
 
 	if(uphp.startup_script) {
 		uwsgi_log("Running startup script %s\n", uphp.startup_script);
+#ifdef ZTS
+	TSRMLS_FETCH();
+#endif
 		zend_file_handle file_handle;
 		//TODO: can stack have non-zero values?
 		memset(&file_handle, 0, sizeof(zend_file_handle));
