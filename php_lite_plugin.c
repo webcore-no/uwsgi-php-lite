@@ -15,6 +15,7 @@ struct uwsgi_php {
 	char *app;
 	char *app_qs;
 	char *app_bypass;
+	char *startup_script;
 	size_t ini_size;
 	int dump_config;
 	char *server_software;
@@ -104,6 +105,7 @@ struct uwsgi_option uwsgi_php_options[] = {
 	{"php-sapi-name", required_argument, 0, "hack the sapi name (required for enabling zend opcode cache)", uwsgi_opt_set_str, &uphp.sapi_name, 0},
 	{"early-php", no_argument, 0, "initialize an early perl interpreter shared by all loaders", uwsgi_opt_early_php, NULL, UWSGI_OPT_IMMEDIATE},
 	{"early-php-sapi-name", required_argument, 0, "hack the sapi name (required for enabling zend opcode cache)", uwsgi_opt_set_str, &uphp.sapi_name, UWSGI_OPT_IMMEDIATE},
+	{"php-startup-script",required_argument,0, "Run script at startup", uwsgi_opt_set_str, &uphp.startup_script, UWSGI_OPT_IMMEDIATE},
 	UWSGI_END_OF_OPTIONS
 };
 
@@ -461,6 +463,27 @@ static int uwsgi_php_init(void) {
 	uwsgi_sapi_module.startup(&uwsgi_sapi_module);
 
 	uwsgi_log("PHP %s initialized\n", PHP_VERSION);
+
+	if(uphp.startup_script) {
+		uwsgi_log("Running startup script %s\n", uphp.startup_script);
+		zend_file_handle file_handle;
+		//TODO: can stack have non-zero values?
+		memset(&file_handle, 0, sizeof(zend_file_handle));
+		file_handle.type = ZEND_HANDLE_FILENAME;
+		file_handle.filename = uphp.startup_script;
+
+		if (php_request_startup(TSRMLS_C) == FAILURE) {
+			uwsgi_log("Failed to start php_request", uphp.startup_script);
+			//TODO: maybe return -1 since php failed to start?
+		} else {
+			SG(headers_sent) = 1;
+			SG(request_info).no_headers = 1;
+			php_execute_script(&file_handle TSRMLS_CC);
+			php_request_shutdown(NULL);
+			//Set to NULL, so it donst run twice after fork_server early sapi
+			uphp.startup_script = NULL;
+		}
+	}
 	return 0;
 }
 
