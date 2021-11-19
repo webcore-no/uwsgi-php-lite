@@ -87,7 +87,7 @@ void uwsgi_opt_php_add_opcache_preload(char *opt, char *value, void*foo) {
 }
 struct uwsgi_option uwsgi_php_options[] = {
 	{"php-ini", required_argument, 0, "set php.ini path", uwsgi_opt_php_ini, NULL, 0},
-	{"php-opcache-preload",required_argument,0, "...",uwsgi_opt_php_add_opcache_preload,NULL,0},
+	{"php-opcache-preload",required_argument,0, "<file> <orig_path> <new_path>",uwsgi_opt_php_add_opcache_preload,NULL,0},
 	{"php-config", required_argument, 0, "set php.ini path", uwsgi_opt_php_ini, NULL, 0},
 	{"php-ini-append", required_argument, 0, "set php.ini path (append mode)", uwsgi_opt_add_string_list, &uphp.append_config, 0},
 	{"php-config-append", required_argument, 0, "set php.ini path (append mode)", uwsgi_opt_add_string_list, &uphp.append_config, 0},
